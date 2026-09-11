@@ -1,0 +1,13 @@
+CREATE TABLE IF NOT EXISTS histories (
+    id BIGSERIAL PRIMARY KEY,
+    created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    is_correct BOOLEAN,
+    user_id BIGSERIAL,
+    word_asked_id BIGSERIAL
+);
+
+CREATE TABLE IF NOT EXISTS reinforcements (
+    id BIGSERIAL PRIMARY KEY,
+    user_id BIGINT NOT NULL UNIQUE
+);
+
