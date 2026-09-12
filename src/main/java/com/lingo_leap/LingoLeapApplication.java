@@ -10,6 +10,7 @@ public class LingoLeapApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(LingoLeapApplication.class, args);
+
 	}
 
 }
