@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 public class HealthController {
 
 
-    @GetMapping("/health")
+    @GetMapping()
     ResponseEntity getHealth(){
         return ResponseEntity.ok("ok");
     }
