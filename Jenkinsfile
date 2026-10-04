@@ -15,10 +15,10 @@ stages {
         steps {
             sh '''
                 docker save lingo-leap-be:latest \
-                    -o /opt/docker/application/lingo-leap-be.tar
+                 -o /opt/docker/application/jenkins/lingo-leap-be.tar
             '''
-        }
     }
+}
 
     stage('Import Image to Kubernetes') {
         steps {
@@ -55,7 +55,7 @@ post {
     always {
         sh '''
             echo "Removing image tar..."
-            rm -f /opt/docker/application/lingo-leap-be.tar
+            rm -f /opt/docker/application/jenkins/lingo-leap-be.tar
 
             echo "Cleaning Docker build cache..."
             docker builder prune -af
