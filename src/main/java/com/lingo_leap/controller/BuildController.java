@@ -20,6 +20,5 @@ public class BuildController {
     @GetMapping
     LocalDateTime getLastBuildTime(){
         return startUpTimeService.getStartupTime();
-
     }
 }
