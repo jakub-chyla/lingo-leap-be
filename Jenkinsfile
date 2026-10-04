@@ -31,7 +31,7 @@ stages {
                         apt-get update -qq &&
                         apt-get install -y -qq containerd >/dev/null &&
                         ctr --address /run/k3s/containerd/containerd.sock \
-                            images import /opt/docker/application/lingo-leap-be.tar
+                            images import /opt/docker/application/jenkins/lingo-leap-be.tar
                     "
             '''
         }
