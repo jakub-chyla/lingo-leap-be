@@ -2,26 +2,26 @@ package com.lingo_leap;
 
 import com.lingo_leap.model.Purchase;
 import com.lingo_leap.repository.PurchaseRepository;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.testcontainers.containers.PostgreSQLContainer;
-import org.junit.jupiter.api.Test;
 import org.testcontainers.junit.jupiter.Container;
-import static org.assertj.core.api.Assertions.assertThat;
+import org.testcontainers.junit.jupiter.Testcontainers;
 
 import java.util.Optional;
 
+import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest
-
+@Testcontainers
 class PurchaseRepositoryTest {
 
     @Container
     @ServiceConnection
     static PostgreSQLContainer<?> postgres =
             new PostgreSQLContainer<>("postgres:17");
-
 
     @Autowired
     private PurchaseRepository purchaseRepository;
@@ -37,7 +37,8 @@ class PurchaseRepositoryTest {
         purchaseRepository.save(p2);
 
         Optional<Purchase> result =
-                purchaseRepository.findFirstByUserIdOrderByCreatedDesc(1L);
+                purchaseRepository
+                        .findFirstByUserIdOrderByCreatedDesc(1L);
 
         assertThat(result).isPresent();
         assertThat(result.get().getId()).isEqualTo(p2.getId());
