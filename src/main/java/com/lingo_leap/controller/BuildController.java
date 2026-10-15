@@ -1,9 +1,8 @@
 package com.lingo_leap.controller;
 
-import com.lingo_leap.kafka.producer.Book;
+import com.lingo_leap.kafka.producer.HistoryKafka;
 import com.lingo_leap.service.StartUpTimeService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.cglib.core.Local;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -15,7 +14,7 @@ import java.time.LocalDateTime;
 @RequestMapping("/build")
 @RequiredArgsConstructor
 public class BuildController {
-    private final KafkaTemplate<String, Book> kafkaTemplate;
+    private final KafkaTemplate<String, HistoryKafka> kafkaTemplate;
 
     private final StartUpTimeService startUpTimeService;
 
@@ -29,8 +28,8 @@ public class BuildController {
     // TODO: to remove
     @GetMapping("/kafka-test")
     String kafkaTest(){
-        Book book = new Book("Clean Code", "9780132350883");
-        kafkaTemplate.send(TOPIC, book);
+        HistoryKafka historyKafka = new HistoryKafka("John", "hello", true);
+        kafkaTemplate.send(TOPIC, historyKafka);
         return "Published Successfully!";
     }
 }
