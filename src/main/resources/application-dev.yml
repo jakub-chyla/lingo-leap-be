@@ -31,6 +31,10 @@ spring:
           auth: true
           starttls:
             enable: true
+  rabbitmq:
+    addresses: localhost:5672
+    username: root1
+    password: root1
 
 stripe:
   secretKey: ${STRIPE}
