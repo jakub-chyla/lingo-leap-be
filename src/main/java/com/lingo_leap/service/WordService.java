@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -98,6 +99,10 @@ public class WordService {
         return words.stream()
                 .map(word -> Mapper.mapWordsNoAttachments(word))
                 .collect(Collectors.toList());
+    }
+
+    public Optional<Word> findById(Long id) {
+        return wordRepository.findById(id);
     }
 
     public List<WordDto> findMostCommonWrongHistoryByUser(Long userId) {

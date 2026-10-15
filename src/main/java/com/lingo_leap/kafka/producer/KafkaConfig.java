@@ -16,7 +16,7 @@ import java.util.Map;
 public class KafkaConfig {
 
     @Bean
-    public ProducerFactory<String,Book> producerFactory()
+    public ProducerFactory<String, HistoryKafka> producerFactory()
     {
         Map<String,Object> config = new HashMap<>();
 
