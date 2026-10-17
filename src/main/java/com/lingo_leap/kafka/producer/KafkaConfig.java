@@ -1,7 +1,10 @@
+
 package com.lingo_leap.kafka.producer;
 
+import com.lingo_leap.kafka.producer.HistoryKafka;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.apache.kafka.clients.producer.ProducerConfig;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.core.DefaultKafkaProducerFactory;
@@ -15,21 +18,22 @@ import java.util.Map;
 @Configuration
 public class KafkaConfig {
 
-    @Bean
-    public ProducerFactory<String, HistoryKafka> producerFactory()
-    {
-        Map<String,Object> config = new HashMap<>();
+    @Value("${SPRING_KAFKA_BOOTSTRAP_SERVERS}")
+    private String bootstrapServers;
 
-        config.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "127.0.0.1:9092");
+    @Bean
+    public ProducerFactory<String, HistoryKafka> producerFactory() {
+        Map<String, Object> config = new HashMap<>();
+
+        config.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
         config.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
         config.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JsonSerializer.class);
 
-        return  new DefaultKafkaProducerFactory<>(config);
+        return new DefaultKafkaProducerFactory<>(config);
     }
 
     @Bean
-    public KafkaTemplate kafkaTemplate()
-    {
-        return  new KafkaTemplate<>(producerFactory());
+    public KafkaTemplate<String, HistoryKafka> kafkaTemplate() {
+        return new KafkaTemplate<>(producerFactory());
     }
 }
