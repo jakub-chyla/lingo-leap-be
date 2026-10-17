@@ -32,4 +32,9 @@ public class BuildController {
         kafkaTemplate.send(TOPIC, historyKafka);
         return "Published Successfully!";
     }
+
+    @GetMapping("/kafka-test-2")
+    String kafkaTest2(){
+        return "kafka";
+    }
 }
