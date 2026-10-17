@@ -50,7 +50,7 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(req -> req
                         .requestMatchers( "/health/**", "/build/**", "/at/download/**", "/word/random/**",  "/login/**", "/register/**", "/refresh-token/**").permitAll()
-                        .requestMatchers("/admin_only/**", "/word/**", "/api/reports/**","/at/**").hasAuthority("ADMIN")
+                        .requestMatchers("/admin_only/**", "/word/**", "/api/reports/**", "/api/reports/**","/at/**").hasAuthority("ADMIN")
                         .anyRequest().authenticated()
                 )
                 .userDetailsService(userDetailsServiceImp)
