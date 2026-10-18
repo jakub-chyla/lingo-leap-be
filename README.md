@@ -83,3 +83,8 @@ Dark mode with CSS variable
 - K3s
 - WireGuard
 
+## Communication Patterns Diagram
+
+<img width="472" height="425" alt="image" src="https://github.com/user-attachments/assets/735d41d2-05c2-47d9-9ba3-a82de44c5b19" />
+
+
