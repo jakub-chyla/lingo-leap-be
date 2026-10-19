@@ -60,7 +60,7 @@ Dark mode with CSS variable
 ## Backend
 - Java 17
 - Springboot 3+
-- Spring Security JWT
+- Spring Security JWT, roles
 - Postgresql
 - Hibernate
 - Flyway database migration
