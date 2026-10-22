@@ -1,10 +1,13 @@
 package com.lingo_leap.service;
 
 import com.lingo_leap.dto.Answer;
-import com.lingo_leap.dto.WordDto;
+import com.lingo_leap.kafka.producer.HistoryKafka;
 import com.lingo_leap.model.History;
+import com.lingo_leap.model.User;
 import com.lingo_leap.repository.HistoryRepository;
+import com.lingo_leap.repository.WordRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
 
@@ -22,13 +25,19 @@ public class HistoryService {
 
     private final HistoryRepository historyRepository;
     private final ReinforcementService reinforcementService;
+    private final UserDetailsServiceImp userDetailsService;
+    private final WordRepository wordRepository;
+    private final KafkaTemplate<String, HistoryKafka> kafkaTemplate;
+    private static final String TOPIC = "NewTopic";
 
     public Integer saveAnswer(Answer answer) {
+        Long userId = userDetailsService.getLoggedInUser().getId();
+
         var history = new History();
-        history.setUserId(answer.userId());
+        history.setUserId(userId);
         history.setWordAskedId(answer.wordId());
         history.setIsCorrect(answer.isCorrect());
-        boolean reinforcement = reinforcementService.isReinforcement(answer.userId());
+        boolean reinforcement = reinforcementService.isReinforcement(userId);
         boolean correct = answer.isCorrect();
         if (reinforcement && correct) {
             historyRepository.save(history);
@@ -38,7 +47,15 @@ public class HistoryService {
             historyRepository.save(history);
         }
 
-        return findHistoryByUser(answer.userId()).size();
+        var word = wordRepository.findById(answer.wordId());
+        if (word.isPresent()){
+            User user = userDetailsService.getLoggedInUser();
+
+            HistoryKafka dto = new HistoryKafka(user.getUsername(), word.get().getEnglish(), answer.isCorrect());
+            kafkaTemplate.send(TOPIC, dto);
+        }
+
+        return findHistoryByUser(userId).size();
     }
 
     public Integer findCountOfIncorrect(Long userId) {

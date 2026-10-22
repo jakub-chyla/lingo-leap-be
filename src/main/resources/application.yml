@@ -28,6 +28,12 @@ spring:
           auth: true
           starttls:
             enable: true
+  rabbitmq:
+    addresses: ${SPRING_RABBITMQ_HOST}:${SPRING_RABBITMQ_PORT}
+    username: ${SPRING_RABBITMQ_USERNAME}
+    password: ${SPRING_RABBITMQ_PASSWORD}
+  kafka:
+    bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS}
 
 application:
   security:
