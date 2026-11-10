@@ -1,19 +1,45 @@
-#FROM maven:3.8.2-eclipse-temurin-17 AS build
-#COPY . .
-#RUN mvn clean package -Pprod -DskipTests
-#
-#FROM openjdk:17-jdk-slim
-#COPY --from=build /target/lingo-leap-0.0.1-SNAPSHOT.jar lingo-leap.jar
-#EXPOSE 8080
-#ENTRYPOINT ["java", "-Dspring.profiles.active=default", "-jar", "lingo-leap.jar"]
 
-FROM maven:3.8.2-eclipse-temurin-17 AS build
-WORKDIR /app
-COPY . .
-RUN mvn clean package -Pprod -DskipTests
+# syntax=docker/dockerfile:1.7
 
-FROM eclipse-temurin:17-jre
+# ==========================================
+# BUILD STAGE
+# ==========================================
+FROM maven:3.9-eclipse-temurin-21 AS build
+
 WORKDIR /app
-COPY --from=build /app/target/lingo-leap-0.0.1-SNAPSHOT.jar lingo-leap.jar
+
+# Najpierw kopiujemy konfigurację Maven.
+# Dzięki temu zmiana kodu nie unieważnia cache zależności.
+COPY pom.xml .
+
+# Cache zależności Maven pomiędzy buildami.
+RUN --mount=type=cache,target=/root/.m2 \
+    mvn -B -ntp dependency:go-offline
+
+# Dopiero teraz kopiujemy kod źródłowy.
+COPY src ./src
+
+# Kompilacja aplikacji.
+RUN --mount=type=cache,target=/root/.m2 \
+    mvn -B -ntp package -DskipTests
+
+
+# ==========================================
+# RUNTIME STAGE
+# ==========================================
+FROM eclipse-temurin:21-jre
+
+WORKDIR /app
+
+# Nie uruchamiamy aplikacji jako root.
+RUN useradd --system --uid 10001 --no-create-home appuser
+
+COPY --from=build --chown=10001:10001 \
+    /app/target/lingo-leap-0.0.1-SNAPSHOT.jar \
+    /app/lingo-leap.jar
+
+USER 10001:10001
+
 EXPOSE 8080
-ENTRYPOINT ["java", "-Dspring.profiles.active=default", "-jar", "lingo-leap.jar"]
+
+ENTRYPOINT ["java", "-jar", "/app/lingo-leap.jar"]
