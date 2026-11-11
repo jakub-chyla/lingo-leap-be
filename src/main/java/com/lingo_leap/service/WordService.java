@@ -57,7 +57,15 @@ public class WordService {
             allHistory.addAll(todayCorrect);
 
             if (userId != 0 && getFromHistory && allHistory.size() > 50) {
+                Integer rand = RandomUtil.getRandomFromRange(1, 2);
+
+                Optional<Long> leastWrong = historyService.findLeastAnsweredHistoryByUser(userId);
                 Long inCorrectWordId = historyService.findRandomWordMostCommonWrongHistoryByUser(allHistory, 20);
+
+                if (rand == 1 && leastWrong.isPresent()){
+                    inCorrectWordId = leastWrong.get();
+                }
+
                 var inCorrectWord = wordRepository.findById(inCorrectWordId);
                 words.set(0, inCorrectWord.get());
             }

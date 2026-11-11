@@ -11,11 +11,7 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
 
-import java.util.LinkedHashMap;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 
@@ -48,12 +44,12 @@ public class HistoryService {
         }
 
         var word = wordRepository.findById(answer.wordId());
-        if (word.isPresent()){
-            User user = userDetailsService.getLoggedInUser();
-
-            HistoryKafka dto = new HistoryKafka(user.getUsername(), word.get().getEnglish(), answer.isCorrect());
-            kafkaTemplate.send(TOPIC, dto);
-        }
+//        if (word.isPresent()){
+//            User user = userDetailsService.getLoggedInUser();
+//
+//            HistoryKafka dto = new HistoryKafka(user.getUsername(), word.get().getEnglish(), answer.isCorrect());
+//            kafkaTemplate.send(TOPIC, dto);
+//        }
 
         return findHistoryByUser(userId).size();
     }
@@ -113,6 +109,10 @@ public class HistoryService {
     public Long findRandomWordMostCommonWrongHistoryByUser(List<History> historyInput,  int count) {
         List<Long> keys = findMostCommonWrongHistoryByUser(historyInput, count);
         return keys.get(ThreadLocalRandom.current().nextInt(keys.size()));
+    }
+
+    public Optional<Long> findLeastAnsweredHistoryByUser(Long userId) {
+        return historyRepository.findLeastAnsweredByUserID(userId);
     }
 
     public List<Long> findMostCommonWrongHistoryByUser(List<History> historyInput, int count) {

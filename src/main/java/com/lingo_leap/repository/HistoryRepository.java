@@ -52,20 +52,6 @@ public interface HistoryRepository extends JpaRepository<History, Long> {
             , nativeQuery = true)
     List<History> findTodayHistoryByUser(@Param("userId") Long userId);
 
-    @Query(value = """
-              SELECT h.* FROM histories h WHERE h.user_id = :userId 
-              AND is_correct = false;
-              """
-            , nativeQuery = true)
-    List<History> findAllWrongHistoryByUser(@Param("userId") Long userId);
-
-    @Query(value = """
-              SELECT h.* FROM histories h WHERE h.user_id = :userId 
-              ORDER BY word_asked_id ASC;
-              """
-            , nativeQuery = true)
-    List<History> findAllHistoryByUser(@Param("userId") Long userId);
-
 
     @Query(value = """
               SELECT h.* FROM histories h WHERE h.user_id = :userId 
@@ -104,5 +90,18 @@ public interface HistoryRepository extends JpaRepository<History, Long> {
             nativeQuery = true
     )
     List<Long> findLatestDistinctWordAskedIds(@Param("userId") Long userId);
+
+    @Query(value = """
+            SELECT h.word_asked_id
+            FROM histories h
+            INNER JOIN words w ON w.id = h.word_asked_id
+            WHERE h.user_id = :userId
+            GROUP BY h.word_asked_id
+            ORDER BY COUNT(*) ASC, h.word_asked_id ASC
+            LIMIT 1
+            """,
+            nativeQuery = true
+    )
+    Optional<Long> findLeastAnsweredByUserID(@Param("userId") Long userId);
 
 }
