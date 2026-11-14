@@ -32,6 +32,8 @@ public class WordService {
 
     private final ReinforcementService reinforcementService;
 
+    private final SettingsService settingsService;
+
     private final TtsService ttsService;
 
     public List<WordDto> getRandomWordsForUser(Long userId, Integer reinforcementRepetitionCount) {
@@ -57,13 +59,13 @@ public class WordService {
             allHistory.addAll(todayCorrect);
 
             if (userId != 0 && getFromHistory && allHistory.size() > 50) {
-                Integer rand = RandomUtil.getRandomFromRange(1, 2);
-
-                Optional<Long> leastWrong = historyService.findLeastAnsweredHistoryByUser(userId);
+                var settings = settingsService.getSettingsForUser(userId);
+                Optional<Long> leastAnswered = historyService.findLeastAnsweredHistoryByUser(userId);
                 Long inCorrectWordId = historyService.findRandomWordMostCommonWrongHistoryByUser(allHistory, 20);
 
-                if (rand == 1 && leastWrong.isPresent()){
-                    inCorrectWordId = leastWrong.get();
+                int leastAnsweredChance = Math.max(0, Math.min(100, settings.getLeastAnswered()));
+                if (leastAnswered.isPresent() && RandomUtil.percentChance(leastAnsweredChance)) {
+                    inCorrectWordId = leastAnswered.get();
                 }
 
                 var inCorrectWord = wordRepository.findById(inCorrectWordId);
