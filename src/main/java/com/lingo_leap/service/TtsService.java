@@ -22,40 +22,29 @@ public class TtsService {
     private final WebClient webClient;
 
     private final AttachmentRepository attachmentRepository;
+    private final TtsApiKeyService ttsApiKeyService;
 
 
-//    private final String apiKey = "esk_lmUnfA0gxJpKEii-nNhx_tCzWfoNsIlu";
-//    private final String apiKey = "esk_BkX4lNSlmDxXDKr6MdxadElxJIQIapp5";
-//    private final String apiKey = "esk_C2Fs61KYk5oW8qSpTJ9siIeUi4N6cfkK";
-//    private final String apiKey = "esk_URK5A3qeCkCqjFTYCnEPk-dnf9HHoV1X";
-//    private final String apiKey = "esk_tKh2QPgW94T0JcYtCI6hiitFhk3K5a-R";
-//    private final String apiKey = "esk_k7Im1Jfqg3IGcLM57j9pEzNkGrVsKWZG";
-//    private final String apiKey = "esk_F5KLVUFCrKXRkptRg7ZjVYUdsJ53MueF";
-    private final String apiKey = "esk_hHOJmEg8I18UzG0TQSP2lOvbanHFA5oa";
-//    private final String apiKey = "esk_VeJXvVCpmV9QEJJc3Ij71FJafcq9zzVM";
-//    private final String apiKey = "esk_giaU2WFB9NtFgRS6WQ2shzwpVj50hHCE";
-//    private final String apiKey = "esk_Nk4tCkTGW9roInBH5u2QQ6c1wSRQHsob";
-//    private final String apiKey = "esk_GtUT_7vNZAXe0NkONkCWPj4sV_pzmpE3";
-//    private final String apiKey = "esk_RbZe2dw6VJO4q7VJekiddyjxeg1-dSyG";
-//    private final String apiKey = "esk_Tcu6vIx7p3hjnkSSwbLDB_oZ_6A6JlOz";
-
-    public TtsService(WebClient.Builder builder, AttachmentRepository attachmentRepository) {
+    public TtsService(WebClient.Builder builder,
+                      AttachmentRepository attachmentRepository,
+                      TtsApiKeyService ttsApiKeyService) {
         this.webClient = builder
                 .baseUrl("https://eidosspeech.xyz")
                 .build();
         this.attachmentRepository = attachmentRepository;
+        this.ttsApiKeyService = ttsApiKeyService;
     }
 
     public Mono<byte[]> generateSpeech(TtsRequest request) {
-
-        return webClient.post()
+        return Mono.fromCallable(ttsApiKeyService::claimKey)
+                .flatMap(apiKey -> webClient.post()
                 .uri("/api/v1/tts")
                 .header("X-API-Key", apiKey)
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_OCTET_STREAM)
                 .bodyValue(request)
                 .retrieve()
-                .bodyToMono(byte[].class);
+                .bodyToMono(byte[].class));
     }
 
     @Transactional
