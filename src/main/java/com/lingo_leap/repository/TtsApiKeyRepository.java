@@ -18,7 +18,10 @@ public interface TtsApiKeyRepository extends JpaRepository<TtsApiKey, Long> {
             SELECT k FROM TtsApiKey k
             WHERE (k.usageDate < :today OR k.dailyUsage < 10)
               AND (k.lastUsedAt IS NULL OR k.lastUsedAt <= :cooldownCutoff)
-            ORDER BY k.id
+            ORDER BY CASE WHEN k.usageDate < :today THEN 0 ELSE k.dailyUsage END,
+                     CASE WHEN k.lastUsedAt IS NULL THEN 0 ELSE 1 END,
+                     k.lastUsedAt,
+                     k.id
             """)
     List<TtsApiKey> findAvailableForUpdate(@Param("today") LocalDate today,
                                            @Param("cooldownCutoff") Instant cooldownCutoff,
