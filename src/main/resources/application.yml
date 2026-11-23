@@ -41,6 +41,9 @@ application:
       secret-key: ${JWT}
       access-token-expiration: 86400000
       refresh-token-expiration: 604800000
+    cookie:
+      secure: ${COOKIE_SECURE:false}
+      same-site: ${COOKIE_SAME_SITE:Lax}
 
 stripe:
   secretKey: ${STRIPE}

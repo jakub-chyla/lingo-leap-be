@@ -25,19 +25,19 @@ public class AuthenticationController {
     private final EmailSenderService emailSenderService;
 
     @PostMapping("/register")
-    public ResponseEntity<AuthenticationResponse> register(@RequestBody AuthRequest request) {
+    public ResponseEntity<AuthenticationResponse> register(@RequestBody AuthRequest request, HttpServletResponse response) {
         //TODO: move to service
         emailSenderService.sendEmail(request.getEmail(),
                 "Account created",
                 "Hi, " + request.getUsername());
         return ResponseEntity
                 .status(HttpStatus.CREATED)
-                .body(authService.register(request));
+                .body(authService.register(request, response));
     }
 
     @PostMapping("/login")
-    public ResponseEntity<AuthenticationResponseDto> login(@RequestBody User request) {
-        AuthenticationResponseDto authResponse = authService.authenticate(request);
+    public ResponseEntity<AuthenticationResponseDto> login(@RequestBody User request, HttpServletResponse response) {
+        AuthenticationResponseDto authResponse = authService.authenticate(request, response);
         return ResponseEntity.ok(authResponse);
     }
 

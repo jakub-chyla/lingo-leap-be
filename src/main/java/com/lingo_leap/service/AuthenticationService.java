@@ -30,11 +30,12 @@ public class AuthenticationService {
     private final JwtService jwtService;
     private final TokenRepository tokenRepository;
     private final AuthenticationManager authenticationManager;
+    private final AuthCookieService authCookieService;
 
-    public AuthenticationResponse register(AuthRequest request) {
+    public AuthenticationResponse register(AuthRequest request, HttpServletResponse response) {
 
         if (repository.findByUsername(request.getUsername()).isPresent()) {
-            return new AuthenticationResponse(null, null, "User already exist");
+            return new AuthenticationResponse("User already exist");
         }
 
         User user = new User();
@@ -47,11 +48,12 @@ public class AuthenticationService {
         String refreshToken = jwtService.generateRefreshToken(user);
 
         saveUserToken(accessToken, refreshToken, user);
+        authCookieService.write(response, accessToken, refreshToken);
 
-        return new AuthenticationResponse(accessToken, refreshToken, "User registration was successful");
+        return new AuthenticationResponse("User registration was successful");
     }
 
-    public AuthenticationResponseDto authenticate(User request) {
+    public AuthenticationResponseDto authenticate(User request, HttpServletResponse response) {
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         request.getUsername(),
@@ -65,14 +67,12 @@ public class AuthenticationService {
 
         revokeAllTokenByUser(user);
         saveUserToken(accessToken, refreshToken, user);
-        AuthenticationResponse authenticationResponse = new AuthenticationResponse(accessToken, refreshToken, "User login was successful");
+        authCookieService.write(response, accessToken, refreshToken);
         AuthenticationResponseDto authenticationResponseDto = new AuthenticationResponseDto();
         authenticationResponseDto.setId(user.getId());
         authenticationResponseDto.setUserName(user.getUsername());
         authenticationResponseDto.setRole(user.getRole());
-        authenticationResponseDto.setAccessToken(authenticationResponse.getAccessToken());
-        authenticationResponseDto.setRefreshToken(authenticationResponse.getRefreshToken());
-        authenticationResponseDto.setMessage(authenticationResponse.getMessage());
+        authenticationResponseDto.setMessage("User login was successful");
 
         return authenticationResponseDto;
     }
@@ -93,13 +93,10 @@ public class AuthenticationService {
     public ResponseEntity refreshToken(
             HttpServletRequest request,
             HttpServletResponse response) {
-        String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
-
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+        String token = authCookieService.read(request.getCookies(), AuthCookieService.REFRESH_COOKIE);
+        if (token == null || token.isBlank()) {
             return new ResponseEntity(HttpStatus.UNAUTHORIZED);
         }
-
-        String token = authHeader.substring(7);
 
         String username = jwtService.extractUsername(token);
 
@@ -112,8 +109,9 @@ public class AuthenticationService {
 
             revokeAllTokenByUser(user);
             saveUserToken(accessToken, refreshToken, user);
+            authCookieService.write(response, accessToken, refreshToken);
 
-            return new ResponseEntity(new AuthenticationResponseDto(user.getId(), user.getUsername(), user.getRole(), accessToken, refreshToken, "New token generated"), HttpStatus.OK);
+            return new ResponseEntity(new AuthenticationResponseDto(user.getId(), user.getUsername(), user.getRole(), "New token generated"), HttpStatus.OK);
         }
 
         return new ResponseEntity(HttpStatus.UNAUTHORIZED);
