@@ -43,13 +43,13 @@ public class HistoryService {
             historyRepository.save(history);
         }
 
-        var word = wordRepository.findById(answer.wordId());
-        if (word.isPresent()){
-            User user = userDetailsService.getLoggedInUser();
-
-            HistoryKafka dto = new HistoryKafka(user.getUsername(), word.get().getEnglish(), answer.isCorrect());
-            kafkaTemplate.send(TOPIC, dto);
-        }
+//        var word = wordRepository.findById(answer.wordId());
+//        if (word.isPresent()){
+//            User user = userDetailsService.getLoggedInUser();
+//
+//            HistoryKafka dto = new HistoryKafka(user.getUsername(), word.get().getEnglish(), answer.isCorrect());
+//            kafkaTemplate.send(TOPIC, dto);
+//        }
 
         return findHistoryByUser(userId).size();
     }
