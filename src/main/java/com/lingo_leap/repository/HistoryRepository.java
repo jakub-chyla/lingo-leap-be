@@ -37,6 +37,20 @@ public interface HistoryRepository extends JpaRepository<History, Long> {
     Integer findCountOfIncorrect(@Param("userId") Long userId);
 
     @Query(value = """
+            SELECT COUNT(*)
+            FROM (
+                SELECT DISTINCT ON (h.word_asked_id) h.is_correct
+                FROM histories h
+                WHERE h.user_id = :userId
+                  AND h.created >= CURRENT_DATE
+                  AND h.created < CURRENT_DATE + INTERVAL '1 DAY'
+                ORDER BY h.word_asked_id, h.created DESC, h.id DESC
+            ) latest_answers
+            WHERE latest_answers.is_correct = false
+            """, nativeQuery = true)
+    Integer countTodaysLatestIncorrectWords(@Param("userId") Long userId);
+
+    @Query(value = """
         SELECT h.word_asked_id
         FROM histories h
         WHERE h.user_id = :userId

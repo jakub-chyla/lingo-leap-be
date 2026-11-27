@@ -55,7 +55,8 @@ public class HistoryService {
     }
 
     public Integer findCountOfIncorrect(Long userId) {
-        return findHistoryByUser(userId).size();
+        Integer count = historyRepository.countTodaysLatestIncorrectWords(userId);
+        return count == null ? 0 : count;
     }
 
     public List<Long> findByUserIdAndWordIdLastInCorrect(Long userId, Integer limit) {

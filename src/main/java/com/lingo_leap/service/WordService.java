@@ -69,7 +69,7 @@ public class WordService {
                 }
 
                 var inCorrectWord = wordRepository.findById(inCorrectWordId);
-                words.set(0, inCorrectWord.get());
+                words.set(0, inCorrectWord.get()); // TODO error No value present
             }
         }
 

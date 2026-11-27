@@ -39,7 +39,6 @@ public class WordController {
     public ResponseEntity<List<WordDto>> getRandom(Long userId, Integer reinforcementRepetitionCount) {
         var randomWords = wordService.getRandomWordsForUser(userId, reinforcementRepetitionCount);
         return randomWords.isEmpty() ? ResponseEntity.notFound().build() : ResponseEntity.ok(randomWords);
-
     }
 
     @DeleteMapping("/{id}")
